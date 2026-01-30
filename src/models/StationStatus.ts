@@ -39,6 +39,8 @@ const stationStatusSchema = new Schema<StationStatus>(
   },
 );
 
+stationStatusSchema.index({ stationId: -1 });
+
 const StationStatus = model("StationStatus", stationStatusSchema);
 
 export default StationStatus;

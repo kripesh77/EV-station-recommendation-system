@@ -6,6 +6,8 @@ export type ConnectorType = "AC_SLOW" | "Type2" | "CCS" | "CHAdeMO";
 
 export type StationStatusType = "active" | "inactive";
 
+type UserRole = "user" | "operator" | "admin";
+
 export interface Port {
   connectorType: ConnectorType;
   vehicleType: VehicleType;
@@ -38,10 +40,17 @@ export interface StationStatus {
   _id?: string;
   stationId: Types.ObjectId;
   portStatus: PortStatus[];
-  lastUpdated: Date;
 }
 
 export interface PortStatus {
   connectorType: ConnectorType;
   occupied: number;
+}
+
+export interface VehicleProfile {
+  vehicleType: VehicleType;
+  batteryCapacity_kWh: number;
+  efficiency_kWh_per_km: number;
+  batteryPercent: number;
+  compatibleConnectors: ConnectorType[];
 }
