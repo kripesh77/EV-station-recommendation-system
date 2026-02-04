@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import type { Port, Station } from "./model.types.js";
+import type { Port, IStation } from "../types/types.js";
 
 export const portSchema = new Schema<Port>(
   {
@@ -9,7 +9,7 @@ export const portSchema = new Schema<Port>(
         values: ["AC_SLOW", "Type2", "CCS", "CHAdeMO"],
         message:
           "Connector type must be either AC_SLOW, Type2, CCS, or CHAdeMO",
-      }, 
+      },
     },
     vehicleType: {
       type: String,
@@ -39,7 +39,7 @@ export const portSchema = new Schema<Port>(
   { _id: false },
 );
 
-const stationSchema = new Schema<Station>(
+const stationSchema = new Schema<IStation>(
   {
     name: {
       type: String,

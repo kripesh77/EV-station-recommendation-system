@@ -18,9 +18,6 @@ interface DuplicateKeyError {
 }
 
 const handleDuplicateEntry = (err: DuplicateKeyError): AppError => {
-  // Tip: Don't try to remember the field names
-  // try to grab the concept
-  // these fields are referenced from the error and then written
   return new AppError(
     `${err.keyValue.name || `'${err.keyValue.email}'`} already exists`,
     400,

@@ -1,5 +1,16 @@
-import { Schema, model } from "mongoose";
-import type { PortStatus, StationStatus } from "./model.types.js";
+import { Schema, model, Model } from "mongoose";
+import type {
+  ConnectorType,
+  PortStatus,
+  IStationStatus,
+} from "../types/types.js";
+
+interface IStationStatusModel extends Model<IStationStatus> {
+  initializeStationStatus(
+    stationId: string,
+    uniqueConnectorTypes: ConnectorType[],
+  ): Promise<IStationStatus>;
+}
 
 const portStatusSchema = new Schema<PortStatus>({
   connectorType: {
@@ -18,7 +29,7 @@ const portStatusSchema = new Schema<PortStatus>({
   },
 });
 
-const stationStatusSchema = new Schema<StationStatus>(
+const stationStatusSchema = new Schema<IStationStatus>(
   {
     stationId: {
       type: Schema.Types.ObjectId,
@@ -41,6 +52,25 @@ const stationStatusSchema = new Schema<StationStatus>(
 
 stationStatusSchema.index({ stationId: -1 });
 
-const StationStatus = model("StationStatus", stationStatusSchema);
+stationStatusSchema.statics.initializeStationStatus = async function (
+  stationId: string,
+  connectorTypes: ConnectorType[],
+) {
+  const portStatus = connectorTypes.map((connectorType) => ({
+    connectorType,
+    occupied: 0,
+  }));
+
+  return this.findOneAndUpdate(
+    { stationId },
+    { stationId, portStatus },
+    { upsert: true, new: true },
+  );
+};
+
+const StationStatus = model<IStationStatus, IStationStatusModel>(
+  "StationStatus",
+  stationStatusSchema,
+);
 
 export default StationStatus;

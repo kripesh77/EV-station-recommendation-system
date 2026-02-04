@@ -1,46 +1,50 @@
 import { Schema, model, Types } from "mongoose";
 import validator from "validator";
-import type { VehicleProfile } from "./model.types.js";
+import bcrypt from "bcrypt";
+import type {
+  UserDocument,
+  JWTPayload,
+  VehicleProfile,
+} from "../types/types.js";
+import jwt from "jsonwebtoken";
+import { AppError } from "../utils/appError.js";
 
-const vehicleProfileSchema = new Schema(
-  {
-    vehicleType: {
-      type: String,
-      enum: ["bike", "car"],
-      required: true,
-    },
-    batteryCapacity_kWh: {
-      type: Number,
-      required: true,
-      min: 0.5,
-      max: 200,
-    },
-    efficiency_kWh_per_km: {
-      type: Number,
-      required: true,
-      min: 0.01,
-      max: 1,
-    },
-    batteryPercent: {
-      type: Number,
-      min: 0,
-      max: 100,
-      default: 100,
-    },
-    compatibleConnectors: {
-      type: [String],
-      enum: ["AC_SLOW", "Type2", "CCS", "CHAdeMO"],
-      required: true,
-    },
+const vehicleProfileSchema = new Schema({
+  vehicleType: {
+    type: String,
+    enum: ["bike", "car"],
+    required: true,
   },
-  { _id: false },
-);
+  batteryCapacity_kWh: {
+    type: Number,
+    required: true,
+    min: 0.5,
+    max: 200,
+  },
+  efficiency_kWh_per_km: {
+    type: Number,
+    required: true,
+    min: 0.01,
+    max: 1,
+  },
+  batteryPercent: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 100,
+  },
+  compatibleConnectors: {
+    type: [String],
+    enum: ["AC_SLOW", "Type2", "CCS", "CHAdeMO"],
+    required: true,
+  },
+});
 
-const userSchema = new Schema(
+const userSchema = new Schema<UserDocument>(
   {
     name: {
       type: String,
-      required: [true, "Operator name is required"],
+      required: [true, "name is required"],
       trim: true,
       minlength: [3, "name must be atleast 3 char long"],
       maxlength: [100, "name is too long"],
@@ -64,10 +68,18 @@ const userSchema = new Schema(
       required: [true, "Please confirm your password"],
       validate: {
         validator: function (val: String) {
-          return this.password === val;
+          return (this as UserDocument).password === val;
         },
         message: "Password do not match",
       },
+    },
+    role: {
+      type: String,
+      enum: {
+        values: ["user", "operator", "admin"],
+        message: "Role must be user, operator, or admin",
+      },
+      default: "user",
     },
     // company and phone are operator specific fields
     company: {
@@ -123,6 +135,43 @@ const userSchema = new Schema(
   },
 );
 
-const User = model("Operator", userSchema);
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 12);
+  this.passwordConfirm = undefined;
+});
+
+userSchema.methods.generateAuthToken = function (): string {
+  const payload: JWTPayload = {
+    id: this._id.toString(),
+    email: this.email,
+    role: this.role,
+  };
+
+  const secret = process.env.JWT_SECRET;
+
+  //@ts-ignore
+  return jwt.sign(payload, secret, {
+    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+  });
+};
+
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string,
+): Promise<boolean> {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
+userSchema.methods.changedPasswordAfter = function (
+  JWTTimestamp: number,
+): boolean {
+  if (this.passwordChangedAt) {
+    const passwordChangedTimestamp = this.passwordChangedAt.getTime() / 1000;
+    return JWTTimestamp < passwordChangedTimestamp;
+  }
+  return false;
+};
+
+const User = model("User", userSchema);
 
 export default User;
