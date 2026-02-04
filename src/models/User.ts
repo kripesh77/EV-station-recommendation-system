@@ -27,14 +27,8 @@ const vehicleProfileSchema = new Schema({
     min: 0.01,
     max: 1,
   },
-  batteryPercent: {
-    type: Number,
-    min: 0,
-    max: 100,
-    default: 100,
-  },
   compatibleConnectors: {
-    type: [String],
+    type: String,
     enum: ["AC_SLOW", "Type2", "CCS", "CHAdeMO"],
     required: true,
   },
@@ -143,6 +137,14 @@ userSchema.pre("save", async function () {
 
 userSchema.pre(/^find/, function (this: any) {
   this.select({ __v: 0 });
+});
+
+// pre-save hook to remove vehiclesProfiles and favouritesStations field for role other than "user"
+userSchema.pre("save", function () {
+  if (this.role !== "user") {
+    this.vehicleProfiles = undefined;
+    this.favoriteStations = undefined;
+  }
 });
 
 userSchema.methods.generateAuthToken = function (): string {

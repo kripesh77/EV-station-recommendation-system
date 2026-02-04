@@ -12,6 +12,7 @@ export interface Port {
   connectorType: ConnectorType;
   vehicleType: VehicleType;
   powerKW: number;
+  occupied: number;
   total: number;
   pricePerKWh: number;
 }
@@ -54,8 +55,8 @@ export interface UserDocument {
   company?: string;
   phone?: string;
   // User-specific fields
-  vehicleProfiles?: VehicleProfile[];
-  favoriteStations?: Types.ObjectId[];
+  vehicleProfiles?: VehicleProfile[] | undefined;
+  favoriteStations?: Types.ObjectId[] | undefined;
   // Common fields
   isActive: boolean;
   lastLogin?: Date;
@@ -98,6 +99,7 @@ export interface IStation {
   };
   address: string;
   ports: Port[];
+  portStatus: PortStatus[];
   operatingHours: string;
   status: StationStatusType;
   createdAt?: Date;

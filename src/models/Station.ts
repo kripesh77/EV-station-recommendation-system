@@ -25,6 +25,12 @@ export const portSchema = new Schema<Port>(
       min: [0.5, "Power must be at least 0.5 kW"],
       max: [350, "Power cannot exceed 350 kW"],
     },
+    occupied: {
+      type: Number,
+      required: [true, "Occupied count is required"],
+      min: [0, "Occupied count cannot be negative"],
+      default: 0,
+    },
     total: {
       type: Number,
       required: [true, "Total ports count is required"],
@@ -49,6 +55,7 @@ const stationSchema = new Schema<IStation>(
     },
     operatorId: {
       type: Schema.Types.ObjectId,
+      ref: "User",
       required: [true, "Operator Id is required"],
     },
     location: {

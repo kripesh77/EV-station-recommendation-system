@@ -4,7 +4,6 @@ import type { IStation } from "../types/types.js";
 import { AppError } from "../utils/appError.js";
 import stationService from "../services/stationService.js";
 import Station from "../models/Station.js";
-import StationStatus from "../models/StationStatus.js";
 
 export const createStation = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -27,13 +26,10 @@ export const createStation = catchAsyncError(
       );
     }
 
-    const station = await stationService.createStation(
-      {
-        ...stationData,
-        operatorId: req.user._id.toString(),
-      },
-      next,
-    );
+    const station = await stationService.createStation({
+      ...stationData,
+      operatorId: req.user._id.toString(),
+    });
 
     res.status(201).json({
       status: "success",
@@ -78,12 +74,6 @@ export const getStation = catchAsyncError(
       return next(new AppError("Station doesn't exist", 404));
     }
 
-    const stationStatus = await stationService.getStationStatusById(
-      id as string,
-    );
-
-    res
-      .status(200)
-      .json({ status: "success", data: { station, stationStatus } });
+    res.status(200).json({ status: "success", data: { station } });
   },
 );

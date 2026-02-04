@@ -14,13 +14,13 @@ Router.post(
   createStation,
 );
 
-Router.get("/:id", getStation);
-
 Router.get(
   "/my-stations",
   protect,
   restrictTo("operator", "admin") as any,
   getMyStations,
 );
+
+Router.get("/:id", getStation);
 
 export { Router as stationRouter };

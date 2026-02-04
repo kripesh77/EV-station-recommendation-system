@@ -39,7 +39,7 @@ export const updateMe = async (
   }
 
   const user = await User.findByIdAndUpdate(req.user._id, updateData, {
-    new: false,
+    new: true,
     runValidators: true,
   });
 
