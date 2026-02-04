@@ -52,6 +52,10 @@ const stationStatusSchema = new Schema<IStationStatus>(
 
 stationStatusSchema.index({ stationId: -1 });
 
+stationStatusSchema.pre(/^find/, function (this: any) {
+  this.select({ __v: 0 });
+});
+
 stationStatusSchema.statics.initializeStationStatus = async function (
   stationId: string,
   connectorTypes: ConnectorType[],

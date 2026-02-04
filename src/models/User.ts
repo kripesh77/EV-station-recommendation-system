@@ -141,6 +141,10 @@ userSchema.pre("save", async function () {
   this.passwordConfirm = undefined;
 });
 
+userSchema.pre(/^find/, function (this: any) {
+  this.select({ __v: 0 });
+});
+
 userSchema.methods.generateAuthToken = function (): string {
   const payload: JWTPayload = {
     id: this._id.toString(),

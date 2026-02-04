@@ -37,6 +37,14 @@ class StationService {
 
     return station;
   }
+
+  getStationById(stationId: string) {
+    return Station.findById(stationId);
+  }
+
+  getStationStatusById(stationId: string) {
+    return StationStatus.findOne({ stationId });
+  }
 }
 
 export default new StationService();

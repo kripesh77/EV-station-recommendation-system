@@ -115,6 +115,10 @@ const stationSchema = new Schema<IStation>(
   },
 );
 
+stationSchema.pre(/^find/, function (this: any) {
+  this.select({ __v: 0 });
+});
+
 const Station = model("Station", stationSchema);
 
 export default Station;
