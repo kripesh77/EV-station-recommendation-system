@@ -90,9 +90,9 @@ export interface JWTPayload {
 }
 
 export interface IStation {
-  _id?: string;
+  _id: Types.ObjectId;
   name: string;
-  operatorId?: string;
+  operatorId: Types.ObjectId;
   location: {
     type: "Point";
     coordinates: [number, number]; // [longitude, latitude]

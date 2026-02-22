@@ -4,6 +4,9 @@ import {
   createStation,
   getMyStations,
   getStation,
+  updateStation,
+  deleteStation,
+  addPort,
 } from "../controllers/stationController.js";
 const Router = express.Router();
 
@@ -21,6 +24,16 @@ Router.get(
   getMyStations,
 );
 
-Router.get("/:id", getStation);
+Router.route("/:id")
+  .get(getStation)
+  .patch(protect, restrictTo("operator", "admin") as any, updateStation)
+  .delete(protect, restrictTo("operator", "admin") as any, deleteStation);
+
+Router.post(
+  "/:id/ports",
+  protect,
+  restrictTo("operator", "admin") as any,
+  addPort,
+);
 
 export { Router as stationRouter };
