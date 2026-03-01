@@ -1,3 +1,2 @@
 # Note for this commit:
-
-hello bichan
+hello kri
